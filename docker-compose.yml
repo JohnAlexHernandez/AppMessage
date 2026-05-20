@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db_message:
+    image: mysql:latest
+    container_name: myapp-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mensajes_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend_message:
+    build: ./backend_message
+    container_name: backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend_message:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - db_message
+    environment:
+      - DB_HOST=db_message
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=mensajes_db
+      - PORT=3000
+
+  frontend_message:
+    build: ./frontend_message
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend_message:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - backend_message
+
+volumes:
+  db_data:
