@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { loginService } from '../services/loginService';
+import Register from './Register';
 
 // Definimos el componente funcional Login
 function Login({ onLoginSuccess }){
     const [correo, setCorreo] = useState('');
     const [contrasena, setContrasena] = useState('');
     const [error, setError] = useState('');
+
+    const [modoRegistro, setModoRegistro] = useState(false);
 
     // Función manejadora que se ejecuta cuando el usuario envía el formulario
     const manejarLogin= (e) => {
@@ -25,6 +28,10 @@ function Login({ onLoginSuccess }){
             });
     };
 
+    if (modoRegistro) {
+        return <Register alCancelar={() => setModoRegistro(false)} />;
+    }
+
     return (
         <div className="container mt-5" style={{ maxWidth: '400px' }}>
             <h2>Iniciar sesión</h2>
@@ -40,7 +47,7 @@ function Login({ onLoginSuccess }){
                         required
                     />
                 </div>
-                <div className="md-3">
+                <div className="mb-3">
                     <input
                         type="password"
                         className="form-control"
@@ -49,8 +56,20 @@ function Login({ onLoginSuccess }){
                         onChange={(e) => setContrasena(e.target.value)}
                         required
                     />
-                </div>                
-                <button type="submit" className="btn btn-primary w-100">Ingresar</button>
+                </div>  
+                <div className="mt-3">
+                    <button type="submit" className="btn btn-primary w-100">Ingresar</button>
+                </div>  
+                <div className="d-flex justify-content-center mt-3">
+                    <a 
+                        href="#!" 
+                        className="text-primary" 
+                        style={{ cursor: 'pointer', textDecoration: 'none' }}
+                        onClick={() => setModoRegistro(true)}
+                    >
+                        ¿No tienes cuenta? Regístrate aquí
+                    </a>
+                </div>      
             </form>
         </div>
     )

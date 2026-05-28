@@ -19,7 +19,7 @@ function MessageForm(
           type="submit" 
           className={`btn ${mensajeEnEdicion ? 'btn-warning' : 'btn-primary'}`}
         >
-          {mensajeEnEdicion ? 'Actualizar' : 'Enviar'}
+          {mensajeEnEdicion ? 'Actualizar' : 'Guardar'}
         </button>
 
         {mensajeEnEdicion && (

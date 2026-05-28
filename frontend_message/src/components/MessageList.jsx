@@ -1,7 +1,7 @@
 function MessageList({ mensajes, onEdit, onDelete }) {
     return (
         <>
-        <h2 className="text-secondary mb-3">Lista de mensajes:</h2>
+        <h2>Lista de mensajes:</h2>
         {mensajes.length === 0 ? (
             <div className="alert alert-info" role="alert">
                 No hay mensajes disponibles.

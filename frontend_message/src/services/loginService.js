@@ -15,5 +15,19 @@ export const loginService = {
             }
             return response.json();
             });
+    },  
+    // Función para manejar la creación de un nuevo usuario
+    create: (nombre, correo_electronico, contrasena) => {
+        // Hacemos una solicitud POST al backend para crear un nuevo usuario
+        return fetch(`${API_URL}/usuario`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ nombre, correo_electronico, contrasena })
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Error al crear el usuario');
+            }
+            return response.json();
+            });
     }
 }
