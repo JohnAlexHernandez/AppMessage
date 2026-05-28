@@ -10,6 +10,9 @@ const cors = require('cors');
 // Importamos el enrutador de mensajes para manejar las rutas relacionadas con los mensajes
 const messageRoutes = require('./src/routes/message_routes');
 
+// Importamos el enrutador de mensajes para manejar las rutas relacionadas con el inicio de sesión
+const authRoutes = require('./src/routes/authRoutes');
+
 const app = express();
 // Definimos el puerto en el que el servidor escuchará las solicitudes
 const port = process.env.PORT || 3000;
@@ -21,6 +24,9 @@ app.use(express.json());
 
 // Usamos el enrutador de mensajes para manejar las rutas que comienzan con /api
 app.use('/api', messageRoutes);
+
+// Usamos el enrutador de mensajes para manejar las rutas que comienzan con /auth
+app.use('/auth', authRoutes);
 
 // Iniciamos el servidor y hacemos que escuche en el puerto definido
 app.listen(port, () => {

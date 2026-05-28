@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { messageService } from './services/messageService';
 import MessageList from './components/MessageList';
 import MessageForm from './components/MessageForm';
+import Login from './components/Login';
 import './App.css'
 
 function App() {
@@ -16,6 +17,9 @@ function App() {
   // Estado para el mensaje que se está editando
   const [mensajeEnEdicion, setMensajeEnEdicion] = useState(null);
 
+  // Estado para el token guardado al cargar la app 
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+
   
   const cargarMensajes = () => {
     messageService.getAll()
@@ -26,9 +30,20 @@ function App() {
   
   // Utilizamos useEffect para cargar los mensajes desde el backend cuando el componente se monta
   useEffect(() => {
-    cargarMensajes();
-  }, []); 
+    // Si el usuario está autenticado, ejecutamos la función de carga
+    if (isLoggedIn) {
+      cargarMensajes();
+    }
+  }, [isLoggedIn]); 
   // El array vacío asegura que este efecto se ejecute solo una vez al montar el componente
+
+  // Función para cerrar la sesión
+  const cerrarSesion = () => {
+    // Elimina físicamente el JWT del disco del navegador
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    setMensajes([]);
+  };
 
   // Función para manejar el envío del formulario, tanto para crear como para actualizar mensajes
   const controlarEnvio = (e) => {
@@ -81,8 +96,20 @@ function App() {
     .catch(error => console.error('Error al eliminar el mensaje:', error));
   };
 
+  // Si el estado es false, detenemos la ejecución de App.jsx aquí y pintamos únicamente el Login.
+  if (!isLoggedIn) {
+    // Le pasamos al hijo la instrucción de encender el interruptor maestro mediante la prop 'onLoginSuccess'
+    return <Login onLoginSuccess={() => setIsLoggedIn(true)} />;
+  }
+
   return (
       <div className="container mt-5" style={{ maxWidth: '500px' }}>
+
+        <div className="d-flex justify-content-end mb-4">
+          <button className="btn btn-secondary btn-sm" onClick={cerrarSesion}>
+            Cerrar Sesión
+          </button>
+        </div>
 
         <MessageForm
           nuevoMensaje={nuevoMensaje}
