@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 
 
 // Definimos una ruta POST que responde con un mensaje de texto "Usuario creado exitosamente!" cuando se accede a la URL "/usuario" mediante una solicitud POST
-const registrarUsuarios = async(req, res) => {
+const registerUser = async(req, res) => {
     // Extraemos los datos enviados por el usuario desde el cuerpo de la petición
     const { nombre, correo_electronico, contrasena} = req.body;
 
@@ -16,11 +16,11 @@ const registrarUsuarios = async(req, res) => {
         const salt = await bcrypt.genSalt(10);
 
         // Encriptamos la contraseña usando el salt
-        const contrasenaEncriptada = await bcrypt.hash(contrasena, salt);
+        const hashedPassword = await bcrypt.hash(contrasena, salt);
 
         await db.query(
             'INSERT INTO usuarios (nombre, correo_electronico, contrasena) VALUES (?, ?, ?)',
-            [nombre, correo_electronico, contrasenaEncriptada]
+            [nombre, correo_electronico, hashedPassword]
         );
 
         res.status(201).json({ message: 'Usuario registrado exitosamente' });
@@ -31,33 +31,33 @@ const registrarUsuarios = async(req, res) => {
 };
 
 // Definimos una ruta POST que responde con un mensaje de texto "Inicio de sesión exitoso" cuando se accede a la URL "/login" mediante una solicitud POST
-const loginUsuario = async(req, res) => {
+const loginUser = async(req, res) => {
     // Extraemos los datos enviados por el usuario desde el cuerpo de la petición
     const { correo_electronico, contrasena} = req.body;
 
     try{
         // Consultamos en la base de datos si existe algún usuario con el correo electrónico proporcionado
-        const [usuarios] = await db.query(
+        const [users] = await db.query(
             'SELECT * FROM usuarios WHERE correo_electronico = ?',
             [correo_electronico]
         );
 
         // Validamos si el usuario existe en el sistema
-        if (usuarios.length === 0){
+        if (users.length === 0){
             return res.status(400).json({ message: 'Correo o contraseña incorrectos' });
         }
         
         // Comparamos la contraseña en texto plano con el hash encriptado almacenado en la base de datos
-        const contrasenaCorrecta = await bcrypt.compare(contrasena, usuarios[0].contrasena);
+        const isPasswordCorrect = await bcrypt.compare(contrasena, users[0].contrasena);
         
-        if(!contrasenaCorrecta){
+        if(!isPasswordCorrect){
             return res.status(400).json({ message: 'Correo o contraseña incorrectos' });
         }
 
         // Creamos el Payload (los datos del usuario que viajarán dentro del token)
         const payload = {
-            id: usuarios[0].id,
-            correo_electronico: usuarios[0].correo_electronico
+            id: users[0].id,
+            correo_electronico: users[0].correo_electronico
         }
 
         // Firmamos el token usando la librería jsonwebtoken y la clave secreta del .env
@@ -74,4 +74,4 @@ const loginUsuario = async(req, res) => {
     }
 }
 
-module.exports = { registrarUsuarios, loginUsuario };
+module.exports = { registerUser, loginUser };

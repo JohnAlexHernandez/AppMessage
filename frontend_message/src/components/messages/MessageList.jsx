@@ -1,14 +1,14 @@
-function MessageList({ mensajes, onEdit, onDelete }) {
+function MessageList({ messages, onEdit, onDelete }) {
     return (
         <>
         <h2>Lista de mensajes:</h2>
-        {mensajes.length === 0 ? (
+        {messages.length === 0 ? (
             <div className="alert alert-info" role="alert">
                 No hay mensajes disponibles.
             </div>
         ) : (
           <ul className="list-group">
-            { mensajes.map((item) => (
+            { messages.map((item) => (
               <li
                 key={item.id}
                 className="list-group-item d-flex justify-content-between align-items-center"

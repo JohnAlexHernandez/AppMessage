@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { loginService } from '../services/loginService';
-import Register from './Register';
+import { loginService } from '../../services/login.service';
+import Register from './RegisterForm';
 
 // Definimos el componente funcional Login
-function Login({ onLoginSuccess }){
+function LoginForm({ onLoginSuccess }){
     const [correo, setCorreo] = useState('');
     const [contrasena, setContrasena] = useState('');
     const [error, setError] = useState('');
 
-    const [modoRegistro, setModoRegistro] = useState(false);
+    const [isRegisterMode, setIsRegisterMode] = useState(false);
 
     // Función manejadora que se ejecuta cuando el usuario envía el formulario
-    const manejarLogin= (e) => {
+    const handleLogin= (e) => {
         e.preventDefault();
         loginService.login(correo, contrasena)
             .then(data => {
@@ -28,15 +28,15 @@ function Login({ onLoginSuccess }){
             });
     };
 
-    if (modoRegistro) {
-        return <Register alCancelar={() => setModoRegistro(false)} />;
+    if (isRegisterMode) {
+        return <Register onCancel={() => setIsRegisterMode(false)} />;
     }
 
     return (
         <div className="container mt-5" style={{ maxWidth: '400px' }}>
             <h2>Iniciar sesión</h2>
             {error && <div className="alert alert-danger">{error}</div>}
-            <form onSubmit={manejarLogin}>
+            <form onSubmit={handleLogin}>
                 <div className="mb-3 text-center">
                     <input 
                         type="email"
@@ -65,7 +65,7 @@ function Login({ onLoginSuccess }){
                         href="#!" 
                         className="text-primary" 
                         style={{ cursor: 'pointer', textDecoration: 'none' }}
-                        onClick={() => setModoRegistro(true)}
+                        onClick={() => setIsRegisterMode(true)}
                     >
                         ¿No tienes cuenta? Regístrate aquí
                     </a>
@@ -75,4 +75,4 @@ function Login({ onLoginSuccess }){
     )
 }
 
-export default Login;
+export default LoginForm;

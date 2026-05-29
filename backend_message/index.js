@@ -8,10 +8,10 @@ const express = require('express');
 const cors = require('cors');
 
 // Importamos el enrutador de mensajes para manejar las rutas relacionadas con los mensajes
-const messageRoutes = require('./src/routes/message_routes');
+const messageRoutes = require('./src/routes/message.routes');
 
 // Importamos el enrutador de mensajes para manejar las rutas relacionadas con el inicio de sesión
-const authRoutes = require('./src/routes/authRoutes');
+const authRoutes = require('./src/routes/auth.routes');
 
 const app = express();
 // Definimos el puerto en el que el servidor escuchará las solicitudes

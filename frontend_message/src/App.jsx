@@ -1,30 +1,30 @@
 // Importamos el hook useState para manejar el estado en nuestro componente
 import { useState, useEffect } from 'react'
-import { messageService } from './services/messageService';
-import MessageList from './components/MessageList';
-import MessageForm from './components/MessageForm';
-import Login from './components/Login';
+import { messageService } from './services/message.service';
+import MessageList from './components/messages/MessageList';
+import MessageForm from './components/messages/MessageForm';
+import Login from './components/auth/LoginForm';
 import './App.css'
 
 function App() {
 
   // Inicializamos el estado con una lista de mensajes
-  const [mensajes, setMensajes] = useState([]);
+  const [messages, setMessages] = useState([]);
 
   // Estado para el nuevo mensaje que se va a crear
-  const [nuevoMensaje, setNuevoMensaje] = useState('');
+  const [newMessage, setNewMessage] = useState('');
 
   // Estado para el mensaje que se está editando
-  const [mensajeEnEdicion, setMensajeEnEdicion] = useState(null);
+  const [editingMessage, setEditingMessage] = useState(null);
 
   // Estado para el token guardado al cargar la app 
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
 
   
-  const cargarMensajes = () => {
+  const loadMessages = () => {
     messageService.getAll()
     // Actualizamos el estado con los mensajes obtenidos
-    .then(data => setMensajes(data))
+    .then(data => setMessages(data))
     .catch(error => console.error('Error al cargar los mensajes:', error));
   };
   
@@ -32,43 +32,43 @@ function App() {
   useEffect(() => {
     // Si el usuario está autenticado, ejecutamos la función de carga
     if (isLoggedIn) {
-      cargarMensajes();
+      loadMessages();
     }
   }, [isLoggedIn]); 
   // El array vacío asegura que este efecto se ejecute solo una vez al montar el componente
 
   // Función para cerrar la sesión
-  const cerrarSesion = () => {
+  const handleLogout = () => {
     // Elimina físicamente el JWT del disco del navegador
     localStorage.removeItem('token');
     setIsLoggedIn(false);
-    setMensajes([]);
+    setMessages([]);
   };
 
   // Función para manejar el envío del formulario, tanto para crear como para actualizar mensajes
-  const controlarEnvio = (e) => {
+  const handleSubmit = (e) => {
     // Evitamos que el formulario se envíe de forma tradicional
     e.preventDefault();
 
     // Validamos que el nuevo mensaje no esté vacío o solo contenga espacios
-    if (!nuevoMensaje.trim()) return;
+    if (!newMessage.trim()) return;
 
-    if (mensajeEnEdicion) {
+    if (editingMessage) {
       // Si hay un mensaje en edición, hacemos una solicitud PUT al backend para actualizarlo
-        messageService.update(mensajeEnEdicion.id, nuevoMensaje)
+        messageService.update(editingMessage.id, newMessage)
         .then(() => {
-          cargarMensajes();
-          setMensajeEnEdicion(null);
-          setNuevoMensaje('');
+          loadMessages();
+          setEditingMessage(null);
+          setNewMessage('');
         })
         .catch(error => console.error('Error al actualizar el mensaje:', error));
         // Manejamos cualquier error que pueda ocurrir durante la creación del mensaje
     } else {
       // Si no hay mensaje en edición, hacemos una solicitud POST al backend para crear un nuevo mensaje
-      messageService.create(nuevoMensaje)
+      messageService.create(newMessage)
       .then(() => {
-        cargarMensajes();
-        setNuevoMensaje('');
+        loadMessages();
+        setNewMessage('');
       })
       .catch(error => console.error('Error al crear el mensaje:', error));
       // Manejamos cualquier error que pueda ocurrir durante la creación del mensaje
@@ -76,18 +76,18 @@ function App() {
   };
 
   // Manejador para cuando se da clic en "Editar" en la lista
-  const seleccionarParaEditar = (item) => {
-    setMensajeEnEdicion(item);
-    setNuevoMensaje(item.texto);
+  const handleSelectToEdit = (item) => {
+    setEditingMessage(item);
+    setNewMessage(item.texto);
   };
 
-  const eliminarMensaje = (id) => {
+  const handleDeleteMessage = (id) => {
     messageService.delete(id)
     // Verificamos si la respuesta fue exitosa
     .then(response => {
       if (response.ok) {
         // Si la eliminación fue exitosa, actualizamos el estado de mensajes filtrando el mensaje eliminado
-        setMensajes(mensajes => mensajes.filter(mensaje => mensaje.id !== id));
+        setMessages(mensajes => mensajes.filter(mensaje => mensaje.id !== id));
       } else {
         console.error('Error al eliminar el mensaje');
       }
@@ -106,23 +106,23 @@ function App() {
       <div className="container mt-5" style={{ maxWidth: '500px' }}>
 
         <div className="d-flex justify-content-end mb-4">
-          <button className="btn btn-secondary btn-sm" onClick={cerrarSesion}>
+          <button className="btn btn-secondary btn-sm" onClick={handleLogout}>
             Cerrar Sesión
           </button>
         </div>
 
         <MessageForm
-          nuevoMensaje={nuevoMensaje}
-          setNuevoMensaje={setNuevoMensaje}
-          mensajeEnEdicion={mensajeEnEdicion}
-          setMensajeEnEdicion={setMensajeEnEdicion}
-          controlarEnvio={controlarEnvio}
+          newMessage={newMessage}
+          setNewMessage={setNewMessage}
+          editingMessage={editingMessage}
+          setEditingMessage={setEditingMessage}
+          handleSubmit={handleSubmit}
         />
 
         <MessageList
-          mensajes={mensajes}
-          onEdit={seleccionarParaEditar}
-          onDelete={eliminarMensaje}
+          messages={messages}
+          onEdit={handleSelectToEdit}
+          onDelete={handleDeleteMessage}
         />
       </div>
   )

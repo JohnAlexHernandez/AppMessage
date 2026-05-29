@@ -19,7 +19,7 @@ export const loginService = {
     // Función para manejar la creación de un nuevo usuario
     create: (nombre, correo_electronico, contrasena) => {
         // Hacemos una solicitud POST al backend para crear un nuevo usuario
-        return fetch(`${API_URL}/usuario`, {
+        return fetch(`${API_URL}/user`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify({ nombre, correo_electronico, contrasena })

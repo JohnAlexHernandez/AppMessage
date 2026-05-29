@@ -1,31 +1,26 @@
 import { useState } from 'react';
-import { loginService } from '../services/loginService';
+import { loginService } from '../../services/login.service';
 
 // Definimos el componente funcional registrar
-function Register({ alCancelar }){
+function RegisterForm({ onCancel }){
     const [nombre, setNombre] = useState('');
     const [correo, setCorreo] = useState('');
     const [contrasena, setContrasena] = useState('');
     const [error, setError] = useState('');
 
     // Función manejadora que se ejecuta cuando el usuario se registra
-    const manejarRegistro= (e) => {
+    const handleRegister= (e) => {
         e.preventDefault();
         loginService.create(nombre, correo, contrasena)
             .then(() => {
                 setError('');
                 // Y regresamos al usuario a la pantalla de Login para que inicie sesión
-                if (alCancelar) alCancelar();
+                if (onCancel) onCancel();
         })
         .catch(err => {
                 console.error('Error en login:', err);
                 setError('No se pudo registrar el usuario. Inténtalo de nuevo');
             });
-    };
-
-    // Función para volver al inicio de sesión
-    const volver = () => {
-      alCancelar();
     };
 
     return (
@@ -37,12 +32,12 @@ function Register({ alCancelar }){
                     href="#!" 
                     className="text-primary text-decoration-none"
                     style={{ cursor: 'pointer' }}
-                    onClick={alCancelar}
+                    onClick={onCancel}
                 >
                     &larr; Volver
                 </a>
             </div>
-            <form onSubmit={manejarRegistro}>
+            <form onSubmit={handleRegister}>
                 <div className="mb-3 text-center">
                     <input 
                         type="text"
@@ -81,4 +76,4 @@ function Register({ alCancelar }){
     )
 }
 
-export default Register;
+export default RegisterForm;
