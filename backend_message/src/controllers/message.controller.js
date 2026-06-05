@@ -4,7 +4,11 @@ const db = require('../config/db');
 // Definimos una ruta GET que responde con un mensaje de texto "Lista de mensajes" cuando se accede a la URL "/mensajes"
 const getMessages = async(req, res) => {
   try {
-    const [messages] = await db.query('SELECT * FROM mensajes ORDER BY fecha_creacion DESC');
+    const usuarioId = req.user.id;
+    const [messages] = await db.query(
+      'SELECT * FROM mensajes where usuario_id = ? ORDER BY fecha_creacion DESC',
+      [usuarioId]
+    );
     res.json(messages);
   } catch (error) {
     console.error('Error al obtener los mensajes:', error);
@@ -19,7 +23,10 @@ const createMessage = async(req, res) => {
     if (!text || text.trim() === '') {
       return res.status(400).json({ message: 'El campo "texto" es obligatorio' });
     }
-    await db.query('INSERT INTO mensajes (texto) VALUES (?)', [text]);
+    const usuarioId = req.user.id;
+    
+    const querySql = 'INSERT INTO mensajes (texto, usuario_id) VALUES (?, ?)';
+    await db.query(querySql, [text, usuarioId]);
     res.status(201).json({ message: 'Mensaje creado exitosamente!' });
   } catch (error) {
     console.error('Error al crear el mensaje:', error);
@@ -32,7 +39,11 @@ const updateMessage = async(req, res) => {
   const id = req.params.id;
   try {
     const { text } = req.body;
-    await db.query('UPDATE mensajes SET texto = ? WHERE id = ?', [text, id]);
+    const usuarioId = req.user.id;
+    await db.query(
+      'UPDATE mensajes SET texto = ? WHERE id = ? AND usuario_id',
+      [text, id, usuarioId]
+    );
     res.json({ message: 'Mensaje actualizado exitosamente!' });
   } catch (error) {
     console.error('Error al actualizar el mensaje:', error);
@@ -44,7 +55,11 @@ const updateMessage = async(req, res) => {
 const deleteMessage = async(req, res) => {
   const id = req.params.id;
   try {
-    await db.query('DELETE FROM mensajes WHERE id = ?', [id]);
+    const usuarioId = req.user.id;
+    await db.query(
+      'DELETE FROM mensajes WHERE id = ? AND usuario_id = ?',
+      [id, usuarioId]
+    );
     res.json({ message: 'Mensaje eliminado exitosamente!' });
   } catch (error) {
     console.error('Error al eliminar el mensaje:', error);
