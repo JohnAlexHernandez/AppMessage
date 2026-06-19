@@ -12,12 +12,13 @@ export const messageService = {
                     'Authorization': `Bearer ${token}`
                 }
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error al obtener los mensajes');
-                }
+            .then(async (response) => {
                 // Convertimos la respuesta a JSON  
-                return response.json();
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error al obtener los mensajes');
+                }
+                return data;
             });
         },  
     // Función para manejar la creación de un nuevo mensaje
@@ -32,12 +33,13 @@ export const messageService = {
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ text })
-        }).then(response => {
+        }).then(async (response) => {
+            const data = await response.json();
             if (!response.ok) {
-                throw new Error('Error al crear el mensaje');
+                throw new Error(data.message || 'Error al crear el mensaje');
             }
-            return response.json();
-            });
+            return data;
+        });
     },
     // Función para actualizar un mensaje existente en el backend
     update: (id, text) => {
@@ -50,12 +52,13 @@ export const messageService = {
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ text })
-        }).then(response => {
+        }).then(async (response) => {
+            const data = await response.json();
             if (!response.ok) { 
-                throw new Error('Error al actualizar el mensaje');
+                throw new Error(data.message || 'Error al actualizar el mensaje');
             }
-            return response.json();
-            });
+            return data;
+        });
     },
     // Función para eliminar un mensaje en el backend
     delete: (id) => {
@@ -66,11 +69,12 @@ export const messageService = {
             headers: {
                     'Authorization': `Bearer ${token}`
                 }
-        }).then(response => {
+        }).then(async (response) => {
+            const data = await response.json();
             if (!response.ok) {
-                throw new Error('Error al eliminar el mensaje');
+                throw new Error(data.message || 'Error al eliminar el mensaje');
             }
-            return response;
-        }); 
+            return data;
+        });
     }
 }

@@ -9,7 +9,7 @@ const getMessages = async(req, res) => {
       'SELECT * FROM mensajes where usuario_id = ? ORDER BY fecha_creacion DESC',
       [usuarioId]
     );
-    res.json(messages);
+    res.status(200).json(messages);
   } catch (error) {
     console.error('Error al obtener los mensajes:', error);
     res.status(500).json({ message: 'Error al obtener los mensajes' });
@@ -22,6 +22,10 @@ const createMessage = async(req, res) => {
     const { text } = req.body;
     if (!text || text.trim() === '') {
       return res.status(400).json({ message: 'El campo "texto" es obligatorio' });
+    }
+
+    if(text.length > 100){
+      return res.status(400).json({ message: 'El campo "texto" no puede superar los 100 caracteres' });
     }
     const usuarioId = req.user.id;
     
@@ -39,12 +43,21 @@ const updateMessage = async(req, res) => {
   const id = req.params.id;
   try {
     const { text } = req.body;
+
+    if (!text || text.trim() === '') {
+      return res.status(400).json({ message: 'El campo "texto" es obligatorio' });
+    }
+
+    if(text.length > 100){
+      return res.status(400).json({ message: 'El campo "texto" no puede superar los 100 caracteres' });
+    }
+    
     const usuarioId = req.user.id;
     await db.query(
       'UPDATE mensajes SET texto = ? WHERE id = ? AND usuario_id',
       [text, id, usuarioId]
     );
-    res.json({ message: 'Mensaje actualizado exitosamente!' });
+    res.status(200).json({ message: 'Mensaje actualizado exitosamente!' });
   } catch (error) {
     console.error('Error al actualizar el mensaje:', error);
     res.status(500).json({ message: 'Error al actualizar el mensaje' });
@@ -60,7 +73,7 @@ const deleteMessage = async(req, res) => {
       'DELETE FROM mensajes WHERE id = ? AND usuario_id = ?',
       [id, usuarioId]
     );
-    res.json({ message: 'Mensaje eliminado exitosamente!' });
+    res.status(200).json({ message: 'Mensaje eliminado exitosamente!' });
   } catch (error) {
     console.error('Error al eliminar el mensaje:', error);
     res.status(500).json({ message: 'Error al eliminar el mensaje' });

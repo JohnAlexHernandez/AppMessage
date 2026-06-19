@@ -1,5 +1,9 @@
 // Cargamos las variables de entorno desde el archivo .env utilizando el módulo dotenv
-require('dotenv').config();
+if (process.env.NODE_ENV === 'test') {
+  require('dotenv').config({ path: '.env.test' });
+} else {
+  require('dotenv').config();
+}
 
 // Creamos una instancia de la aplicación Express
 const express = require('express');
@@ -28,7 +32,11 @@ app.use('/api', messageRoutes);
 // Usamos el enrutador de mensajes para manejar las rutas que comienzan con /auth
 app.use('/auth', authRoutes);
 
-// Iniciamos el servidor y hacemos que escuche en el puerto definido
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
+// Iniciamos el servidor y hacemos que escuche en el puerto definido, si no estamos en modo test
+if(process.env.NODE_ENV !== 'test'){
+  app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+  });
+}
+
+module.exports = app;

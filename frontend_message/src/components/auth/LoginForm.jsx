@@ -24,7 +24,7 @@ function LoginForm({ onLoginSuccess }){
         })
         .catch(err => {
                 console.error('Error en login:', err);
-                setError('Correo o contraseña incorrectos');
+                setError(err.message);
             });
     };
 

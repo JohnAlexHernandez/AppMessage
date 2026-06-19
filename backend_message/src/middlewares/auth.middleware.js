@@ -7,7 +7,7 @@ const validateBearerToken = (req, res, next) =>{
     // Se valida que exista y que empiece con 'Bearer'
     if(!authHeader || !authHeader.startsWith('Bearer ')){
         return res.status(401).json({
-            mesage: 'No se proporcionó un token bearer válido'
+            message: 'No se proporcionó un token bearer válido'
         });
     }
 
@@ -24,9 +24,9 @@ const validateBearerToken = (req, res, next) =>{
         //Damos luz verde para ir al controlador
         next();
     } catch(error){
-        console.error('Error de verificación de token', error.mesage);
+        console.error('Error de verificación de token', error.message);
         return res.status(403).json({
-            mesage: 'Token no válido o token expirado'
+            message: 'Token no válido o token expirado'
         });
     }
 };

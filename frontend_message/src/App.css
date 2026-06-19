@@ -1,0 +1,57 @@
+/* Contenedor flotante en la parte superior central */
+.toast-notificacion {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%); /* Lo centra perfectamente en pantallas de cualquier tamaño */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 0.95rem;
+  font-weight: 500;
+  z-index: 9999;
+  
+  /* Entra bajando y se desvanece al salir */
+  animation: fadeSlide 3s ease-in-out forwards;
+}
+
+/* Estilo para Éxito (Verde moderno) */
+.toast-notificacion.success {
+  background-color: #e8f8f0;
+  color: #1e7e34;
+  border: 1px solid #b2e2ca;
+}
+
+/* Estilo para Error (Rojo moderno) */
+.toast-notificacion.error {
+  background-color: #fdedec;
+  color: #bd2130;
+  border: 1px solid #f5c6cb;
+}
+
+.toast-texto {
+  margin: 0;
+}
+
+/* Entra rápido, se mantiene estático, y se desvanece al final */
+@keyframes fadeSlide {
+  0% {
+    top: -50px;
+    opacity: 0;
+  }
+  10% {
+    top: 20px;
+    opacity: 1;
+  }
+  90% {
+    top: 20px;
+    opacity: 1;
+  }
+  100% {
+    top: 10px;
+    opacity: 0;
+  }
+}

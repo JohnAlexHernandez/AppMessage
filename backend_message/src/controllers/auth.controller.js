@@ -12,6 +12,32 @@ const registerUser = async(req, res) => {
     const { nombre, correo_electronico, contrasena} = req.body;
 
     try{
+        // Validamos que los campos nombre, correo electrónico y contraseña no se encuentren vacios
+        if(!nombre || !correo_electronico || !contrasena || nombre.trim() === '' || correo_electronico.trim() === '' || contrasena.trim() == ''){
+            return res.status(400).json({ message: 'Los campos nombre, correo electrónico y contrasena son obligatorios' });
+        }
+
+        if(nombre.length > 100){
+          return res.status(400).json({ message: 'El campo "nombre" no puede superar los 100 caracteres' });
+        }
+
+        // Validamos el formato del correo electrónico
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if(!emailRegex.test(correo_electronico)){
+            return res.status(400).json({ message: 'El formato del correo electrónico no es válido' });
+        }
+
+        // Consultamos en la base de datos si existe algún usuario con el correo electrónico proporcionado
+        const [users] = await db.query(
+            'SELECT * FROM usuarios WHERE correo_electronico = ?',
+            [correo_electronico]
+        );
+
+        // Validamos si ya existe un usuario asociado al correo electrónico proporcionado
+        if (users.length > 0){
+            return res.status(400).json({ message: 'Ya existe un usuario asociado al correo electrónico' });
+        }
+
         // Generamos los "salts" (rondas de aleatoriedad para  la encriptación)
         const salt = await bcrypt.genSalt(10);
 
@@ -36,6 +62,16 @@ const loginUser = async(req, res) => {
     const { correo_electronico, contrasena} = req.body;
 
     try{
+        // Validamos que los campos correo electrónico y contraseña no se encuentren vacios
+        if(!correo_electronico || !contrasena || correo_electronico.trim() === '' || contrasena.trim() == ''){
+            return res.status(400).json({ message: 'Los campos correo electrónico y contrasena son obligatorios' });
+        }
+        
+        // Validamos el formato del correo electrónico
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if(!emailRegex.test(correo_electronico)){
+            return res.status(400).json({ message: 'El formato del correo electrónico no es válido' });
+        }
         // Consultamos en la base de datos si existe algún usuario con el correo electrónico proporcionado
         const [users] = await db.query(
             'SELECT * FROM usuarios WHERE correo_electronico = ?',
@@ -44,7 +80,7 @@ const loginUser = async(req, res) => {
 
         // Validamos si el usuario existe en el sistema
         if (users.length === 0){
-            return res.status(400).json({ message: 'Correo o contraseña incorrectos' });
+            return res.status(400).json({ message: 'No existe un usuario asociado al correo electrónico ingresado' });
         }
         
         // Comparamos la contraseña en texto plano con el hash encriptado almacenado en la base de datos

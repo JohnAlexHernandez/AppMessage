@@ -9,11 +9,12 @@ export const loginService = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify({ correo_electronico, contrasena })
-        }).then(response => {
+        }).then(async (response) => {
+            const data = await response.json();
             if (!response.ok) {
-                throw new Error('Error al crear el mensaje');
+                throw new Error(data.message || 'Error al iniciar sesión');
             }
-            return response.json();
+            return data;
             });
     },  
     // Función para manejar la creación de un nuevo usuario
@@ -23,11 +24,12 @@ export const loginService = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify({ nombre, correo_electronico, contrasena })
-        }).then(response => {
+        }).then(async (response) => {
+            const data = await response.json();
             if (!response.ok) {
-                throw new Error('Error al crear el usuario');
+                throw new Error(data.message || 'Error al crear el usuario');
             }
-            return response.json();
+            return data;
             });
     }
 }

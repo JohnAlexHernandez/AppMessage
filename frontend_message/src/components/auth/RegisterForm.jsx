@@ -19,7 +19,7 @@ function RegisterForm({ onCancel }){
         })
         .catch(err => {
                 console.error('Error en login:', err);
-                setError('No se pudo registrar el usuario. Inténtalo de nuevo');
+                setError(err.message);
             });
     };
 
