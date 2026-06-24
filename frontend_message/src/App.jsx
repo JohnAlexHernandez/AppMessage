@@ -27,6 +27,8 @@ function App() {
     type: "",
   });
 
+  const user = JSON.parse(localStorage.getItem('user'));
+
   // Función helper para disparar alertas con auto-cierre
   const triggerNotification = (message, type = "success") => {
     // Enciende la alerta con los datos dinámicos
@@ -66,6 +68,7 @@ function App() {
   const handleLogout = () => {
     // Elimina físicamente el JWT del disco del navegador
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setIsLoggedIn(false);
     setMessages([]);
   };
@@ -76,7 +79,10 @@ function App() {
     e.preventDefault();
 
     // Validamos que el nuevo mensaje no esté vacío o solo contenga espacios
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim()) {
+      triggerNotification('El campo "mensaje" es obligatorio', "error");
+      return;
+    }
 
     if (editingMessage) {
       // Si hay un mensaje en edición, hacemos una solicitud PUT al backend para actualizarlo
@@ -117,6 +123,8 @@ function App() {
   };
 
   const handleDeleteMessage = (id) => {
+    const confirm = window.confirm("¿Estás seguro de que deseas eliminar este mensaje?");
+    if (!confirm) return;
     messageService
       .delete(id)
       // Verificamos si la respuesta fue exitosa
@@ -170,6 +178,7 @@ function App() {
           messages={messages}
           onEdit={handleSelectToEdit}
           onDelete={handleDeleteMessage}
+          currentUser={user}
         />
       </div>
     </>

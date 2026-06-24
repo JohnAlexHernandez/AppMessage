@@ -4,10 +4,8 @@ const db = require('../config/db');
 // Definimos una ruta GET que responde con un mensaje de texto "Lista de mensajes" cuando se accede a la URL "/mensajes"
 const getMessages = async(req, res) => {
   try {
-    const usuarioId = req.user.id;
     const [messages] = await db.query(
-      'SELECT * FROM mensajes where usuario_id = ? ORDER BY fecha_creacion DESC',
-      [usuarioId]
+      'SELECT * FROM mensajes ORDER BY fecha_creacion DESC'
     );
     res.status(200).json(messages);
   } catch (error) {

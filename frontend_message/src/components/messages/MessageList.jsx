@@ -1,4 +1,4 @@
-function MessageList({ messages, onEdit, onDelete }) {
+function MessageList({ messages, onEdit, onDelete, currentUser }) {
     return (
         <>
         <h2>Lista de mensajes:</h2>
@@ -14,22 +14,24 @@ function MessageList({ messages, onEdit, onDelete }) {
                 className="list-group-item d-flex justify-content-between align-items-center"
               >
                 {item.texto}
-                <div className="btn-group">
-                  <button 
-                    onClick={() => {
-                      onEdit(item);
-                    }} 
-                    className="btn btn-outline-warning btn-sm me-2"
-                  >
-                  Editar
-                  </button>
-                  <button 
-                    onClick={() => onDelete(item.id)}
-                    className="btn btn-outline-danger btn-sm"
-                  >
-                    Eliminar
-                  </button>
-                </div>
+                {item.usuario_id === currentUser.id && (
+                  <div className="btn-group">
+                    <button 
+                      onClick={() => {
+                        onEdit(item);
+                      }} 
+                      className="btn btn-outline-warning btn-sm me-2"
+                    >
+                    Editar
+                    </button>
+                    <button 
+                      onClick={() => onDelete(item.id)}
+                      className="btn btn-outline-danger btn-sm"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                )}
               </li>
             )) }
           </ul>
