@@ -1,6 +1,6 @@
 // Importamos supertest para simular peticiones HTTP
 const request = require('supertest');
-const app = require('../../index');
+const { app } = require('../../index');
 const db = require('../../src/config/db');
 
 // describe agrupa las pruebas relacionadas

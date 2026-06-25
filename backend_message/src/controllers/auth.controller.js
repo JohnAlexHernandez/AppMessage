@@ -104,7 +104,8 @@ const loginUser = async(req, res) => {
             message: 'Inicio de sesión exitoso',
             token: token,
             user: {
-              id: users[0].id
+              id: users[0].id,
+              nombre: users[0].nombre
             }
         });
     }catch(error){

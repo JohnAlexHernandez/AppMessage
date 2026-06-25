@@ -1,10 +1,15 @@
 // Importamos el hook useState para manejar el estado en nuestro componente
 import { useState, useEffect } from "react";
+import { io } from 'socket.io-client';
 import { messageService } from "./services/message.service";
 import MessageList from "./components/messages/MessageList";
 import MessageForm from "./components/messages/MessageForm";
 import Login from "./components/auth/LoginForm";  
 import "./App.css";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// Nos conectamos al puerto 3000 de nuestro backend en Docker
+const socket = io(API_URL);
 
 function App() {
 
@@ -61,6 +66,36 @@ function App() {
     if (isLoggedIn) {
       loadMessages();
     }
+
+    // Escuchamos cuando React se conecta con éxito
+    socket.on('connect', () => {
+      console.log('¡Me conecté al backend desde React! Mi ID es:', socket.id);
+    });
+
+    // Si otra persona crea una nota, nos llegará por aquí instantáneamente
+    socket.on('servidor:mensaje_nuevo', (data) => {
+      loadMessages();
+      const autor = data && data.autor ? data.autor : "Alguien";
+      triggerNotification(`${autor} agregó un nuevo mensaje!`);
+    });
+
+    // Si otra persona actualiza una nota, nos llegará por aquí instantáneamente
+    socket.on('servidor:mensaje_actualizado', () => {
+      loadMessages();
+    });
+
+    // Si otra persona elimina una nota, nos llegará por aquí instantáneamente
+    socket.on('servidor:mensaje_eliminado', () => {
+      loadMessages();
+    });
+
+    // Limpieza cuando el componente se desmonta
+    return () => {
+      socket.off('connect');
+      socket.off('servidor:mensaje_nuevo');
+      socket.off('servidor:mensaje_actualizado');
+      socket.off('servidor:mensaje_eliminado');
+    };
   }, [isLoggedIn]);
   // El array vacío asegura que este efecto se ejecute solo una vez al montar el componente
 
@@ -89,7 +124,11 @@ function App() {
       messageService
         .update(editingMessage.id, newMessage)
         .then(response => {
-          triggerNotification(response.message, "success"); 
+          triggerNotification(response.message, "success");
+          
+          // Avisamos al backend que actualizamos una nota.
+          socket.emit('cliente:mensaje_actualizado');
+
           loadMessages();
           setEditingMessage(null);
           setNewMessage("");
@@ -104,7 +143,12 @@ function App() {
       messageService
         .create(newMessage)
         .then(response => {
-          triggerNotification(response.message, "success");          
+          triggerNotification(response.message, "success");
+          
+          // Avisamos al backend que creamos una nota.
+          const username = user && user.nombre ? user.nombre : "Alguien";
+          socket.emit('cliente:mensaje_nuevo', { autor: username });
+
           loadMessages();
           setNewMessage("");
         })
@@ -131,6 +175,10 @@ function App() {
       .then((response) => {
         if (response && response.message) {
           triggerNotification(response.message, "success");
+
+          // Avisamos al backend que eliminamos una nota.
+          socket.emit('cliente:mensaje_eliminado');
+
           // Si la eliminación fue exitosa, actualizamos el estado de mensajes filtrando el mensaje eliminado
           setMessages((mensajes) =>
             mensajes.filter((mensaje) => mensaje.id !== id),
