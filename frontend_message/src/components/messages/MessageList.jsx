@@ -14,24 +14,24 @@ function MessageList({ messages, onEdit, onDelete, currentUser }) {
                 className="list-group-item d-flex justify-content-between align-items-center"
               >
                 {item.texto}
-                {item.usuario_id === currentUser.id && (
-                  <div className="btn-group">
-                    <button 
-                      onClick={() => {
-                        onEdit(item);
-                      }} 
-                      className="btn btn-outline-warning btn-sm me-2"
-                    >
-                    Editar
-                    </button>
-                    <button 
-                      onClick={() => onDelete(item.id)}
-                      className="btn btn-outline-danger btn-sm"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                )}
+                <div className="btn-group">
+                  <button 
+                    onClick={() => {
+                      onEdit(item);
+                    }} 
+                    className="btn btn-outline-warning btn-sm me-2"
+                    disabled={item.usuario_id !== currentUser.id}
+                  >
+                  Editar
+                  </button>
+                  <button 
+                    onClick={() => onDelete(item.id)}
+                    className="btn btn-outline-danger btn-sm"
+                    disabled={item.usuario_id !== currentUser.id}
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </li>
             )) }
           </ul>
