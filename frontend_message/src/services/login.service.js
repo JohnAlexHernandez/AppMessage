@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/auth';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/auth';
 
 // Exportamos el objeto loginService para que pueda ser utilizado en los componentes de React
 export const loginService = {
