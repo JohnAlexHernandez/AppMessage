@@ -56,7 +56,7 @@ jobs:
 
       - name: Inicializar tablas de la Base de Datos
         run: |
-          mysql -h 127.0.0.1 -P 3306 -u root -proot mensajes_db < backend_message/database/init.sql
+          docker exec -i $(docker ps -q --filter ancestor=mysql:latest) mysql -u root -proot mensajes_db < backend_message/database/init.sql
 
       # Ejecutar las pruebas automatizadas
       - name: Ejecutar Pruebas Unitarias
