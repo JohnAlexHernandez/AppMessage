@@ -1,0 +1,50 @@
+# Nombre del pipeline que se verá en la interfaz de GitHub
+name: Node.js CI Backend Workflow
+
+# Se ejecuta cada vez que hagamos push a main
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  laboratorio-ci:
+    # Le decimos a GitHub que levante una máquina virtual con Ubuntu Linux limpio
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # Descargamos el código de tu repositorio dentro de la máquina virtual
+      - name: Descargar código del repositorio
+        uses: actions/checkout@v4
+
+      # Instalamos Node.js en esa máquina virtual
+      - name: Configurar entorno de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Ejecutamos el comando de prueba para verificar que el Linux responde
+      - name: Verificar versiones en la nube
+        run: |
+          echo "El servidor Linux de GitHub Actions está vivo."
+          node -v
+          npm -v
+
+      # Instalamos las dependencias de producción y desarrollo
+      # Usamos 'npm ci' en lugar de 'npm install' porque está optimizado para entornos de CI
+      - name: Instalar dependencias del Backend
+        run: |
+          cd backend_message
+          npm ci
+
+      # Validamos la sintaxis y calidad del código (Análisis Estático)
+      - name: Ejecutar Linter (Revisión de código)
+        run: |
+          cd backend_message
+          npm run lint --if-present
+
+      # Ejecutar las pruebas automatizadas
+      - name: Ejecutar Pruebas Unitarias
+        run: |
+          cd backend_message
+          npm test --if-present
