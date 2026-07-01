@@ -11,6 +11,17 @@ jobs:
     # Le decimos a GitHub que levante una máquina virtual con Ubuntu Linux limpio
     runs-on: ubuntu-latest
 
+    # Creamos la base de datos temporal a GitHub Actions
+    services:
+      mysql-container:
+        image: mysql:latest
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: mensajes_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
 
       # Descargamos el código de tu repositorio dentro de la máquina virtual
@@ -45,6 +56,13 @@ jobs:
 
       # Ejecutar las pruebas automatizadas
       - name: Ejecutar Pruebas Unitarias
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306 
+          DB_USER: root
+          DB_PASSWORD: ""
+          DB_NAME: mensajes_db
+          JWT_SECRET: MiClaveSecreta
         run: |
           cd backend_message
           npm test --if-present
