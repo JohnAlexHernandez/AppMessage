@@ -5,6 +5,8 @@ name: Node.js CI Backend Workflow
 on:
   push:
     branches: [main, master]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   laboratorio-ci:
