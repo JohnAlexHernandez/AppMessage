@@ -2,9 +2,33 @@
 const request = require("supertest");
 const { app } = require("../../../index");
 const db = require("../../config/db");
+const bcrypt = require('bcryptjs');
 
 // describe agrupa las pruebas relacionadas
 describe("Messages API - Update", () => {
+
+  let testUserId;
+
+  beforeEach(async () => {
+    // Limpiamos las tablas para que un test no ensucie al siguiente
+    await db.query("DELETE FROM mensajes");
+    await db.query("DELETE FROM usuarios");
+
+    // Generamos los "salts" (rondas de aleatoriedad para la encriptación)
+    const salt = await bcrypt.genSalt(10);
+    
+    // Encriptamos la contraseña usando el salt
+    const hashedPassword = await bcrypt.hash('contrasena', salt);
+
+    // Insertamos el usuario de prueba
+    const [result] = await db.query(
+      "INSERT INTO usuarios (nombre, correo_electronico, contrasena) VALUES (?, ?, ?)",
+      ['Usuario de prueba', 'correo@prueba.com', hashedPassword]
+    );
+
+    testUserId = result.insertId;
+  });
+
   // Variable que contiene el identificador del registro de prueba
   let messageIdToClean = null;
 
@@ -14,14 +38,14 @@ describe("Messages API - Update", () => {
     const login = await request(app)
       .post("/auth/login")
       .send({
-        correo_electronico: "prueba@prueba.com",
-        contrasena: "prueba",
+        correo_electronico: "correo@prueba.com",
+        contrasena: "contrasena",
       });
 
     // Insertamos el mensaje usando el ID del usuario
     const [inserted] = await db.query(
       "INSERT INTO mensajes (texto, usuario_id) VALUES ('Texto original', ?)",
-      [10]
+      [testUserId]
     );
 
     messageIdToClean = inserted.insertId;
@@ -46,14 +70,14 @@ describe("Messages API - Update", () => {
     const login = await request(app)
       .post("/auth/login")
       .send({
-        correo_electronico: "prueba@prueba.com",
-        contrasena: "prueba",
+        correo_electronico: "correo@prueba.com",
+        contrasena: "contrasena",
       });
 
     // Insertamos el mensaje usando el ID del usuario
     const [inserted] = await db.query(
       "INSERT INTO mensajes (texto, usuario_id) VALUES ('Texto original', ?)",
-      [10]
+      [testUserId]
     );
 
     messageIdToClean = inserted.insertId;
@@ -78,14 +102,14 @@ describe("Messages API - Update", () => {
     const login = await request(app)
       .post("/auth/login")
       .send({
-        correo_electronico: "prueba@prueba.com",
-        contrasena: "prueba",
+        correo_electronico: "correo@prueba.com",
+        contrasena: "contrasena",
       });
 
     // Insertamos el mensaje usando el ID del usuario
     const [inserted] = await db.query(
       "INSERT INTO mensajes (texto, usuario_id) VALUES ('Texto original', ?)",
-      [10]
+      [testUserId]
     );
 
     messageIdToClean = inserted.insertId;
@@ -110,14 +134,14 @@ describe("Messages API - Update", () => {
     const login = await request(app)
       .post("/auth/login")
       .send({
-        correo_electronico: "prueba@prueba.com",
-        contrasena: "prueba",
+        correo_electronico: "correo@prueba.com",
+        contrasena: "contrasena",
       });
 
     // Insertamos el mensaje usando el ID del usuario
     const [inserted] = await db.query(
       "INSERT INTO mensajes (texto, usuario_id) VALUES ('Texto original', ?)",
-      [10]
+      [testUserId]
     );
 
     messageIdToClean = inserted.insertId;
@@ -147,14 +171,14 @@ describe("Messages API - Update", () => {
     const login = await request(app)
       .post("/auth/login")
       .send({
-        correo_electronico: "prueba@prueba.com",
-        contrasena: "prueba",
+        correo_electronico: "correo@prueba.com",
+        contrasena: "contrasena",
       });
 
     // Insertamos el mensaje usando el ID del usuario
     const [inserted] = await db.query(
       "INSERT INTO mensajes (texto, usuario_id) VALUES ('Texto original', ?)",
-      [10]
+      [testUserId]
     );
 
     messageIdToClean = inserted.insertId;
@@ -196,6 +220,8 @@ describe("Messages API - Update", () => {
         );
         messageIdToClean = null;
     }
+
+    await db.query("DELETE FROM usuarios WHERE correo_electronico = 'correo@prueba.com'");
   });
 });
 

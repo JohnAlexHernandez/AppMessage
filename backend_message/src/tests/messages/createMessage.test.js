@@ -2,9 +2,32 @@
 const request = require("supertest");
 const { app } = require("../../../index");
 const db = require("../../config/db");
+const bcrypt = require('bcryptjs');
 
 // describe agrupa las pruebas relacionadas
 describe("Messages API - Create", () => {
+
+  let testUserId;
+  
+  beforeEach(async () => {
+    // Limpiamos las tablas para que un test no ensucie al siguiente
+    await db.query("DELETE FROM mensajes");
+    await db.query("DELETE FROM usuarios");
+
+    // Generamos los "salts" (rondas de aleatoriedad para la encriptación)
+    const salt = await bcrypt.genSalt(10);
+    
+    // Encriptamos la contraseña usando el salt
+    const hashedPassword = await bcrypt.hash('contrasena', salt);
+
+    // Insertamos el usuario de prueba
+    const [result] = await db.query(
+      "INSERT INTO usuarios (nombre, correo_electronico, contrasena) VALUES (?, ?, ?)",
+      ['Usuario de prueba', 'correo@prueba.com', hashedPassword]
+    );
+
+    testUserId = result.insertId;
+  });
 
   // Validación de la creación de un nuevo mensaje
   it("debe retornar 201 si el mensaje se crea exitosamente", async () => {
@@ -12,8 +35,8 @@ describe("Messages API - Create", () => {
     const login = await request(app)
       .post("/auth/login")
       .send({
-        correo_electronico: "prueba@prueba.com",
-        contrasena: "prueba",
+        correo_electronico: "correo@prueba.com",
+        contrasena: "contrasena",
       });
 
     // Extraemos el token de la respuesta
@@ -22,7 +45,7 @@ describe("Messages API - Create", () => {
       .post("/api/message")
       .set("Authorization", `Bearer ${token}`)
       .send({
-        text: "Mensaje de prueba 17062026",
+        text: "Mensaje de prueba",
       })
       .expect(201);
 
@@ -35,8 +58,8 @@ describe("Messages API - Create", () => {
     const login = await request(app)
       .post("/auth/login")
       .send({
-        correo_electronico: "prueba@prueba.com",
-        contrasena: "prueba",
+        correo_electronico: "correo@prueba.com",
+        contrasena: "contrasena",
       });
 
     // Extraemos el token de la respuesta
@@ -59,8 +82,8 @@ describe("Messages API - Create", () => {
     const login = await request(app)
       .post("/auth/login")
       .send({
-        correo_electronico: "prueba@prueba.com",
-        contrasena: "prueba",
+        correo_electronico: "correo@prueba.com",
+        contrasena: "contrasena",
       });
 
     // Extraemos el token de la respuesta
@@ -81,8 +104,8 @@ describe("Messages API - Create", () => {
     const login = await request(app)
       .post("/auth/login")
       .send({
-        correo_electronico: "prueba@prueba.com",
-        contrasena: "prueba",
+        correo_electronico: "correo@prueba.com",
+        contrasena: "contrasena",
       });
 
     // Extraemos el token de la respuesta
@@ -108,8 +131,8 @@ describe("Messages API - Create", () => {
     const login = await request(app)
       .post("/auth/login")
       .send({
-        correo_electronico: "prueba@prueba.com",
-        contrasena: "prueba",
+        correo_electronico: "correo@prueba.com",
+        contrasena: "contrasena",
       });
 
     // Extraemos el token de la respuesta
@@ -144,8 +167,10 @@ describe("Messages API - Create", () => {
   afterEach(async () => {
     // Eliminamos el mensaje de prueba de la BD después de cada prueba
     await db.query(
-      "DELETE FROM mensajes WHERE texto = 'Mensaje de prueba 17062026'",
+      "DELETE FROM mensajes",
     );
+
+    await db.query("DELETE FROM usuarios WHERE correo_electronico = 'correo@prueba.com'");
   });
 });
 

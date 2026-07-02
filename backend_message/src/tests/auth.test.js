@@ -2,9 +2,24 @@
 const request = require('supertest');
 const { app } = require('../../index');
 const db = require('../../src/config/db');
+const bcrypt = require('bcryptjs');
 
 // describe agrupa las pruebas relacionadas
 describe('Auth API - Login', () => {
+
+  beforeEach(async () => {
+    await db.query("DELETE FROM usuarios");
+    // Generamos los "salts" (rondas de aleatoriedad para  la encriptación)
+    const salt = await bcrypt.genSalt(10);
+    
+    // Encriptamos la contraseña usando el salt
+    const hashedPassword = await bcrypt.hash('contrasena', salt);
+    // Insertamos el usuario con el que intentaremos loguearnos mal
+    await db.query(
+      "INSERT INTO usuarios (nombre, correo_electronico, contrasena) VALUES (?, ?, ?)",
+      ['Usuario de prueba', 'correo@prueba.com', hashedPassword]
+    );
+  });
 
   // Validación de usuario existente
   it('debe retornar 400 si el usuario no existe', async () => {
@@ -24,7 +39,7 @@ describe('Auth API - Login', () => {
     const response = await request(app)
       .post('/auth/login')
       .send({
-        correo_electronico: 'prueba@prueba.com',
+        correo_electronico: 'correo@prueba.com',
         contrasena: 'contrasenaincorrecta'
       })
       .expect(400);
@@ -50,7 +65,7 @@ describe('Auth API - Login', () => {
     const response = await request(app)
       .post('/auth/login')
       .send({
-        correo_electronico: 'prueba@prueba.com',
+        correo_electronico: 'correo@prueba.com',
         contrasena: ''
       })
       .expect(400);
@@ -89,8 +104,8 @@ describe('Auth API - Login', () => {
     const response = await request(app)
       .post('/auth/login')
       .send({
-        correo_electronico: 'prueba@prueba.com',
-        contrasena: 'prueba'
+        correo_electronico: 'correo@prueba.com',
+        contrasena: 'contrasena'
       })
       .expect(200);
     
@@ -124,9 +139,30 @@ describe('Auth API - Login', () => {
     dbSpy.mockRestore();
     consoleSpy.mockRestore();
   });
+
+  // Se ejecuta de forma automática para limpiar los datos de prueba
+  afterEach(async () => {
+    // Eliminamos el usuario de prueba de la BD después de cada prueba
+    await db.query("DELETE FROM usuarios WHERE correo_electronico = 'correo@prueba.com'");
+  });
 });
 
 describe('Auth API - Register', () => {
+
+  beforeEach(async () => {
+    await db.query("DELETE FROM usuarios");
+    // Generamos los "salts" (rondas de aleatoriedad para la encriptación)
+    const salt = await bcrypt.genSalt(10);
+    
+    // Encriptamos la contraseña usando el salt
+    const hashedPassword = await bcrypt.hash('contrasena', salt);
+    // Insertamos el usuario con el que intentaremos loguearnos mal
+    await db.query(
+      "INSERT INTO usuarios (nombre, correo_electronico, contrasena) VALUES (?, ?, ?)",
+      ['Usuario de prueba', 'correo@prueba.com', hashedPassword]
+    );
+  });
+
   // Validación de registro de un nuevo usuario
   it('debe retornar 201 si el registro del usuario es exitoso', async () => {
     const response = await request(app)
@@ -192,7 +228,7 @@ describe('Auth API - Register', () => {
       .post('/auth/user')
       .send({
         nombre: 'Usuario de prueba',
-        correo_electronico: 'prueba@prueba.com',
+        correo_electronico: 'correo@prueba.com',
         contrasena: 'prueba'
       })
       .expect(400);
@@ -228,7 +264,7 @@ describe('Auth API - Register', () => {
   // Se ejecuta de forma automática para limpiar los datos de prueba
   afterEach(async () => {
     // Eliminamos el usuario de prueba de la BD después de cada prueba
-    await db.query("DELETE FROM usuarios WHERE correo_electronico = 'usuario-prueba@prueba.com'");
+    await db.query("DELETE FROM usuarios");
   });
 });
 

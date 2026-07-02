@@ -3,9 +3,33 @@ const request = require("supertest");
 const { app } = require("../../../index");
 const db = require("../../config/db");
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 // describe agrupa las pruebas relacionadas
 describe("Messages API - Get", () => {
+
+  let testUserId;
+  
+  beforeEach(async () => {
+    // Limpiamos las tablas para que un test no ensucie al siguiente
+    await db.query("DELETE FROM mensajes");
+    await db.query("DELETE FROM usuarios");
+
+    // Generamos los "salts" (rondas de aleatoriedad para la encriptación)
+    const salt = await bcrypt.genSalt(10);
+    
+    // Encriptamos la contraseña usando el salt
+    const hashedPassword = await bcrypt.hash('contrasena', salt);
+
+    // Insertamos el usuario de prueba
+    const [result] = await db.query(
+      "INSERT INTO usuarios (nombre, correo_electronico, contrasena) VALUES (?, ?, ?)",
+      ['Usuario de prueba', 'correo@prueba.com', hashedPassword]
+    );
+
+    testUserId = result.insertId;
+  });
+
   // Validación sin token debe retornar 401
   it("debe retornar 401 si el usuario no está autenticado", async () => {
     const response = await request(app)
@@ -42,8 +66,8 @@ describe("Messages API - Get", () => {
       .mockImplementation(() => {});
 
     const payload = {
-        id: 10,
-        correo_electronico: 'prueba@prueba.com'
+        id: testUserId,
+        correo_electronico: 'correo@prueba.com'
     }
 
     const tokenExpirado = jwt.sign(
@@ -68,8 +92,8 @@ describe("Messages API - Get", () => {
     const login = await request(app)
       .post("/auth/login")
       .send({
-        correo_electronico: "prueba@prueba.com",
-        contrasena: "prueba",
+        correo_electronico: "correo@prueba.com",
+        contrasena: "contrasena",
       });
 
     // Extraemos el token de la respuesta
@@ -91,8 +115,8 @@ describe("Messages API - Get", () => {
     const login = await request(app)
       .post("/auth/login")
       .send({
-        correo_electronico: "prueba@prueba.com",
-        contrasena: "prueba",
+        correo_electronico: "correo@prueba.com",
+        contrasena: "contrasena",
       });
 
     // Extraemos el token de la respuesta
