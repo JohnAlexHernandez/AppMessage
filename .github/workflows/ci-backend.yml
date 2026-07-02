@@ -72,3 +72,13 @@ jobs:
         run: |
           cd backend_message
           npm test --if-present
+  
+  deploy:
+    name: Despliegue en Render
+    needs: laboratorio-ci 
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Disparar Deploy en Render
+        run: |
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
