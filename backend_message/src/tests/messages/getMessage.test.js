@@ -143,6 +143,11 @@ describe("Messages API - Get", () => {
     dbSpy.mockRestore();
     consoleSpy.mockRestore();
   });
+
+  // Se ejecuta de forma automática para limpiar los datos de prueba
+    afterEach(async () => {  
+      await db.query("DELETE FROM usuarios");
+    });
 });
 
 // Se ejecuta de forma automática cuando todos los 'it' anteriores finalizan

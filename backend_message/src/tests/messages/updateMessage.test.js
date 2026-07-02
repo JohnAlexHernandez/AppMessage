@@ -221,7 +221,7 @@ describe("Messages API - Update", () => {
         messageIdToClean = null;
     }
 
-    await db.query("DELETE FROM usuarios WHERE correo_electronico = 'correo@prueba.com'");
+    await db.query("DELETE FROM usuarios");
   });
 });
 
