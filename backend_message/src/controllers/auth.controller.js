@@ -97,7 +97,7 @@ const loginUser = async(req, res) => {
         }
 
         // Firmamos el token usando la librería jsonwebtoken y la clave secreta del .env
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' })
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' })
 
         // Respondemos con éxito enviando el token al cliente
         res.status(200).json({ 

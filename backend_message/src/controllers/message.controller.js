@@ -5,7 +5,10 @@ const db = require('../config/db');
 const getMessages = async(req, res) => {
   try {
     const [messages] = await db.query(
-      'SELECT * FROM mensajes ORDER BY fecha_creacion DESC'
+      `SELECT mensajes.*, usuarios.nombre AS nombre_usuario
+       FROM mensajes 
+       JOIN usuarios ON mensajes.usuario_id = usuarios.id
+       ORDER BY mensajes.fecha_creacion DESC`
     );
     res.status(200).json(messages);
   } catch (error) {

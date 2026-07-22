@@ -55,3 +55,18 @@
     opacity: 0;
   }
 }
+
+.corkboard-container {
+    background-color: #fdfbf7;
+    background-image: linear-gradient(to right, rgba(200, 190, 180, 0.15) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(200, 190, 180, 0.15) 1px, transparent 1px);
+    background-size: 25px 25px;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.post-it-note:hover {
+    transform: translateY(-4px) rotate(0deg) !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12) !important;
+    z-index: 10;
+}

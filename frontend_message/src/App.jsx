@@ -202,15 +202,22 @@ function App() {
 
   return (
     <>
+    <div className="corkboard-container min-vh-100 py-4">
       {notification.show && (
         <div className={`toast-notificacion ${notification.type}`}>
           <p className="toast-texto">{notification.message}</p>
         </div>
       )}
-      <div className="container mt-5" style={{ maxWidth: "500px" }}>
+      <div className="container mt-5" >
         <div className="d-flex justify-content-end mb-4">
-          <button className="btn btn-secondary btn-sm" onClick={handleLogout}>
-            Cerrar Sesión
+          <button 
+            className="btn btn-link text-dark text-decoration-none p-0 fw-semibold" 
+            style={{ fontSize: '0.9rem', opacity: '0.75', transition: 'opacity 0.2s' }}
+            onClick={handleLogout}
+            onMouseEnter={(e) => e.target.style.opacity = '1'}
+            onMouseLeave={(e) => e.target.style.opacity = '0.75'}
+          >
+            Cerrar sesión &rarr;
           </button>
         </div>
 
@@ -229,6 +236,7 @@ function App() {
           currentUser={user}
         />
       </div>
+    </div>
     </>
   );
 }
