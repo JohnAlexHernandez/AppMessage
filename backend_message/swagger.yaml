@@ -1,0 +1,419 @@
+openapi: 3.0.3
+info:
+  title: API de autenticación
+  description: API de Express con Node.js para el registro y el inicio de sesión de usuarios.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor local
+
+tags:
+  - name: Autenticación
+    description: Operaciones de registro e inicio de sesión
+  - name: Mensajes
+    description: Operaciones protegidas para gestionar mensajes
+
+paths:
+  /auth/user:
+    post:
+      tags:
+        - Autenticación
+      summary: Registrar un usuario
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+            example:
+              nombre: Juan Pérez
+              correo_electronico: juan.perez@example.com
+              contrasena: MiPassword123
+      responses:
+        '201':
+          description: Usuario registrado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Usuario registrado exitosamente
+        '400':
+          description: Solicitud inválida, datos incompletos, correo inválido o usuario existente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Ya existe un usuario asociado al correo electrónico
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Error al registrar el usuario
+
+  /auth/login:
+    post:
+      tags:
+        - Autenticación
+      summary: Iniciar sesión
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              correo_electronico: juan.perez@example.com
+              contrasena: MiPassword123
+      responses:
+        '200':
+          description: Inicio de sesión exitoso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              example:
+                message: Inicio de sesión exitoso
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                user:
+                  id: 1
+                  nombre: Juan Pérez
+        '400':
+          description: Solicitud inválida, usuario inexistente o credenciales incorrectas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Correo o contraseña incorrectos
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Error al iniciar sesión
+
+  /api/messages:
+    get:
+      tags:
+        - Mensajes
+      summary: Obtener todos los mensajes
+      operationId: getMessages
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de mensajes obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        '401':
+          description: No se proporcionó un token Bearer válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: El token no es válido o ha expirado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Error interno al obtener los mensajes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Error al obtener los mensajes
+
+  /api/message:
+    post:
+      tags:
+        - Mensajes
+      summary: Crear un mensaje
+      operationId: createMessage
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRequest'
+            example:
+              text: Este es un mensaje nuevo.
+      responses:
+        '201':
+          description: Mensaje creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Mensaje creado exitosamente!
+        '400':
+          description: El campo text es obligatorio o supera los 100 caracteres.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: El campo "texto" es obligatorio
+        '401':
+          description: No se proporcionó un token Bearer válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: El token no es válido o ha expirado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Error interno al crear el mensaje.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Error al crear el mensaje
+
+  /api/message/{id}:
+    parameters:
+      - $ref: '#/components/parameters/MessageId'
+    put:
+      tags:
+        - Mensajes
+      summary: Actualizar un mensaje
+      operationId: updateMessage
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRequest'
+            example:
+              text: Este es el mensaje actualizado.
+      responses:
+        '200':
+          description: Mensaje actualizado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Mensaje actualizado exitosamente!
+        '400':
+          description: El campo text es obligatorio o supera los 100 caracteres.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: El campo "texto" no puede superar los 100 caracteres
+        '401':
+          description: No se proporcionó un token Bearer válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: El token no es válido o ha expirado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Error interno al actualizar el mensaje.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Error al actualizar el mensaje
+    delete:
+      tags:
+        - Mensajes
+      summary: Eliminar un mensaje
+      operationId: deleteMessage
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Mensaje eliminado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Mensaje eliminado exitosamente!
+        '401':
+          description: No se proporcionó un token Bearer válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: El token no es válido o ha expirado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Error interno al eliminar el mensaje.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Error al eliminar el mensaje
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtenido mediante el endpoint de inicio de sesión.
+  parameters:
+    MessageId:
+      name: id
+      in: path
+      required: true
+      description: Identificador numérico del mensaje.
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+      example: 1
+  schemas:
+    MessageRequest:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Texto del mensaje.
+          example: Este es un mensaje.
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        texto:
+          type: string
+          example: Este es un mensaje.
+        fecha_creacion:
+          type: string
+          format: date-time
+          example: '2026-07-23T12:30:00Z'
+        usuario_id:
+          type: integer
+          format: int64
+          example: 1
+        nombre_usuario:
+          type: string
+          description: Nombre del usuario que creó el mensaje.
+          example: Juan Pérez
+
+    RegisterUserRequest:
+      type: object
+      required:
+        - nombre
+        - correo_electronico
+        - contrasena
+      properties:
+        nombre:
+          type: string
+          maxLength: 100
+          description: Nombre completo del usuario.
+          example: Juan Pérez
+        correo_electronico:
+          type: string
+          format: email
+          description: Correo electrónico del usuario.
+          example: juan.perez@example.com
+        contrasena:
+          type: string
+          format: password
+          minLength: 1
+          description: Contraseña del usuario.
+          example: MiPassword123
+
+    LoginRequest:
+      type: object
+      required:
+        - correo_electronico
+        - contrasena
+      properties:
+        correo_electronico:
+          type: string
+          format: email
+          description: Correo electrónico registrado.
+          example: juan.perez@example.com
+        contrasena:
+          type: string
+          format: password
+          minLength: 1
+          description: Contraseña del usuario.
+          example: MiPassword123
+
+    MessageResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Mensaje descriptivo de la operación.
+
+    LoginResponse:
+      type: object
+      required:
+        - message
+        - token
+        - user
+      properties:
+        message:
+          type: string
+          example: Inicio de sesión exitoso
+        token:
+          type: string
+          description: Token JWT para autenticar solicitudes posteriores.
+        user:
+          type: object
+          required:
+            - id
+            - nombre
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 1
+            nombre:
+              type: string
+              example: Juan Pérez

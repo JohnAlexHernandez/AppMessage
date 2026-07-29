@@ -17,11 +17,23 @@ const { Server } = require('socket.io');
 // Importamos el módulo CORS para permitir solicitudes desde diferentes orígenes
 const cors = require('cors');
 
+// Importamos el módulo de rutas de Swagger para la documentación de la API
+const swaggerUi = require('swagger-ui-express');
+
+// Importamos el módulo YAML para leer archivos YAML
+const YAML = require('yamljs');
+
+// Carga el archivo YAML que acabamos de crear
+const swaggerDocument = YAML.load('./swagger.yaml');
+
 // Importamos el enrutador de mensajes para manejar las rutas relacionadas con los mensajes
 const messageRoutes = require('./src/routes/message.routes');
 
 // Importamos el enrutador de mensajes para manejar las rutas relacionadas con el inicio de sesión
 const authRoutes = require('./src/routes/auth.routes');
+
+// Importamos el enrutador de mensajes para manejar las rutas relacionadas con la API de autocompletado
+const aiRoutes = require('./src/routes/ai.routes');
 
 const app = express();
 // Definimos el puerto en el que el servidor escuchará las solicitudes
@@ -29,6 +41,10 @@ const port = process.env.PORT || 3000;
 
 // Importamos el módulo CORS para permitir solicitudes desde diferentes orígenes
 app.use(cors());
+
+// Monta la ruta /api-docs para ver la interfaz gráfica
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // Middleware para analizar el cuerpo de las solicitudes en formato JSON
 app.use(express.json());
 
@@ -42,6 +58,9 @@ app.use('/api', messageRoutes);
 
 // Usamos el enrutador de mensajes para manejar las rutas que comienzan con /auth
 app.use('/auth', authRoutes);
+
+// Usamos el enrutador de mensajes para manejar las rutas que comienzan con /ai
+app.use('/ai', aiRoutes);
 
 // Iniciamos el servidor y hacemos que escuche en el puerto definido, si no estamos en modo test
 if(process.env.NODE_ENV !== 'test'){
