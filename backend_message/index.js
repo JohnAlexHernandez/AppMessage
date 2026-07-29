@@ -56,9 +56,6 @@ app.use('/api', messageRoutes);
 // Usamos el enrutador de mensajes para manejar las rutas que comienzan con /auth
 app.use('/auth', authRoutes);
 
-// Usamos el enrutador de mensajes para manejar las rutas que comienzan con /ai
-app.use('/ai', aiRoutes);
-
 // Iniciamos el servidor y hacemos que escuche en el puerto definido, si no estamos en modo test
 if(process.env.NODE_ENV !== 'test'){
 
